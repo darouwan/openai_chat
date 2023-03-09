@@ -66,6 +66,7 @@ def speech_recognize_once_from_mic():
             logger.info(response)
             response = "" + response
             speech_synthesis_result = speech_synthesizer.speak_text_async(response)
+            speech_synthesis_result.get()
         elif result.reason == speechsdk.ResultReason.NoMatch:
             print("No speech could be recognized")
         elif result.reason == speechsdk.ResultReason.Canceled:
@@ -73,7 +74,7 @@ def speech_recognize_once_from_mic():
             print("Speech Recognition canceled: {}".format(cancellation_details.reason))
             if cancellation_details.reason == speechsdk.CancellationReason.Error:
                 print("Error details: {}".format(cancellation_details.error_details))
-        time.sleep(0.1)
+        time.sleep(0.2)
     # </SpeechRecognitionWithMicrophone>
 
 

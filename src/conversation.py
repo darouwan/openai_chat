@@ -2,10 +2,11 @@ import openai
 import uuid
 from loguru import logger
 import settings
+import queue
 
 
 class ContextConversation:
-    def __init__(self, topic_name, system_msg='You are a helpful assistant.'):
+    def __init__(self, topic_name, system_msg='You are a helpful assistant.', max_chat_limit=11):
         """
         Initialize a new chat conversation
         :param topic_name:
@@ -18,17 +19,23 @@ class ContextConversation:
         self.__topic_name = topic_name or 'New Topic'
         self.__topic_id = uuid.uuid1()
         self.__system_msg = system_msg
-        self.__chat_history = [{"role": "system", "content": self.__system_msg}]
+        self.__max_chat_limit = max_chat_limit
+        self.__chat_history = queue.Queue(self.__max_chat_limit)
+        self.__chat_history.put_nowait({"role": "system", "content": self.__system_msg})
 
     def send_chat(self, msg):
-        self.__chat_history.append({"role": "user", "content": msg})
+        if self.__chat_history.qsize() >= self.__max_chat_limit:
+            self.__chat_history.get_nowait()
+            self.__chat_history.get_nowait()
+            logger.debug(f"Current chat history length = {self.__chat_history.qsize()}/{self.__max_chat_limit}")
+        self.__chat_history.put_nowait({"role": "user", "content": msg})
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=self.__chat_history
+            messages=list(self.__chat_history.queue)
         )
         response_content = response['choices'][0]['message']['content']
         logger.debug(response_content)
-        self.__chat_history.append({"role": "assistant", "content": response_content})
+        self.__chat_history.put_nowait({"role": "assistant", "content": response_content})
         return response_content
 
     def clear_chat_history(self):

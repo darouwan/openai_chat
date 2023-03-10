@@ -8,3 +8,5 @@ You need to preset
 * openai_api_key: Openai service api key
 
 in environment variables. 
+
+Then run `speach_recognition.py` file

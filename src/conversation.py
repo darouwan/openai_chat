@@ -13,6 +13,7 @@ class ContextConversation:
         :param system_msg: Many conversations begin with a system message to gently instruct the assistant. For example, here is one of the system messages used for ChatGPT:
         You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Knowledge cutoff: {knowledge_cutoff} Current date: {current_date}
         In general, gpt-3.5-turbo-0301 does not pay strong attention to the system message, and therefore important instructions are often better placed in a user message.
+        :param max_chat_limit: Limit the max char history length.
         """
         if openai.api_key is None:
             openai.api_key = settings.api_keys
